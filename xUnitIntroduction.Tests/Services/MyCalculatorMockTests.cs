@@ -2,6 +2,7 @@
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,9 @@ namespace xUnitIntroduction.Tests.Services
     [Fact]
     public void ShouldReturnResult_WhenSubstract()
     {
+
+      var sw = Stopwatch.StartNew();
+
       // bu sayede MyCalculator real class kullanmayacaktır
       // stub
       //var mockService = new Mock<MyCalculator>();
@@ -22,8 +26,14 @@ namespace xUnitIntroduction.Tests.Services
       // dependecy mocklanıp gönderiliyor
       var calculatorService = new MyCalculatorService(mockService.Object);
 
+     
+
       // setup mock ile ilgili bir aşama
-      mockService.Setup(x => x.Substract(It.IsAny<double>(), It.IsAny<double>())).Returns<double, double>((x, y) => x - y);
+      mockService.Setup(x => x.Substract(It.IsAny<double>(), It.IsAny<double>())).Returns<double, double>((x, y) => x - y).Callback(() =>
+      {
+        // loglama, ek işlemler yapılabilir.
+        Console.WriteLine("Substract methodu çağırıldı.");
+      });
 
       // act
       var result =  calculatorService.Substract(10, 4);
@@ -35,6 +45,11 @@ namespace xUnitIntroduction.Tests.Services
       // verify
       mockService.Verify(x => x.Substract(10, 4),Times.Once);
       // bu method en az bir kez çağırıldımı ?
+      sw.Stop();
+
+      // burada da timeout süresini test ettik. elapsed time üzerinden.
+      sw.Elapsed.TotalMilliseconds.Should().BeLessThan(100);
+
 
     }
 
