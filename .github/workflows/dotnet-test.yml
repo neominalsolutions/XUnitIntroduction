@@ -1,0 +1,52 @@
+name: .NET Unit Tests
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build project
+        run: dotnet build --no-restore --configuration Release
+
+      # 🧪 Unit test + coverage ölçümü
+      - name: Run unit tests with coverage
+        run: dotnet test --no-build --configuration Release `
+          /p:CollectCoverage=true `
+          /p:CoverletOutput=./TestResults/coverage/ `
+          /p:CoverletOutputFormat=cobertura `
+          /p:Threshold=50 `
+          /p:ThresholdType=line `
+          /p:ThresholdStat=average
+        continue-on-error: false
+
+      # 📊 Coverage raporunu HTML olarak üret
+      - name: Generate coverage report
+        run: |
+          dotnet tool install -g dotnet-reportgenerator-globaltool
+          reportgenerator -reports:./**/coverage.cobertura.xml -targetdir:./coverage-report -reporttypes:Html
+
+      - name: Publish test and coverage results
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-and-coverage-results
+          path: |
+            **/test_results.trx
+            coverage-report/**
