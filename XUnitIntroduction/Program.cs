@@ -1,3 +1,4 @@
+using XUnitIntroduction.Application;
 using XUnitIntroduction.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +11,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 //builder.Services.AddScoped<IMyCalculator, MyCalculator>();
+builder.Services.AddScoped<IOrderSubmitApplicationService,SubmitOrderApplicationService>();
 
 var app = builder.Build();
 
