@@ -12,6 +12,8 @@ builder.Services.AddSwaggerGen();
 
 //builder.Services.AddScoped<IMyCalculator, MyCalculator>();
 builder.Services.AddScoped<IOrderSubmitApplicationService,SubmitOrderApplicationService>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IEmailSender, EmailSender>();
 
 var app = builder.Build();
 
